@@ -158,3 +158,5 @@ CORS_ALLOWED_ORIGINS = [
     "https://your-frontend.vercel.app",  # Replace with your Vercel URL
     "http://localhost:3000",  # For local testing
 ]
+
+
