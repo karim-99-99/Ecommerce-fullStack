@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'products',
     'users',
     'corsheaders',
+    'cloudinary_storage',  # ✅ Add this BEFORE staticfiles
+    'cloudinary',  # ✅ Add this too
 
 ]
 
@@ -190,3 +192,22 @@ CORS_ALLOWED_ORIGINS = [
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('Root'),
+    'API_KEY': os.environ.get('868421519827555'),
+    'API_SECRET': os.environ.get('yskc2vKm18QmdrA8mlb8OprJCNw'),
+}
+
+# Change default file storage to Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Keep these for backward compatibility
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
