@@ -148,15 +148,62 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ALLOW_ALL_ORIGINS = True  # for development only
 
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 CORS_ALLOWED_ORIGINS = [
-    "https://your-frontend.vercel.app",  # Replace with your Vercel URL
-    "http://localhost:3000",  # For local testing
+    "https://your-vercel-app.vercel.app",  # ✅ Replace with YOUR actual Vercel URL
+    "http://localhost:5173",  # For local development
+    "http://localhost:3000",
 ]
 
+CORS_ALLOW_ALL_ORIGINS = False
 
+
+# Add your Railway domain
+ALLOWED_HOSTS = [
+    'ecommerce-fullstack-django.up.railway.app',
+    'localhost',
+    '127.0.0.1',
+]
+
+# Add CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
+    'https://ecommerce-fullstack-django.up.railway.app',
+    'https://*.up.railway.app',
+]
+
+# If you're having session issues, also add:
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SAMESITE = 'None'
+
+# Add your Railway domain to allowed hosts
+ALLOWED_HOSTS = [
+    'ecommerce-fullstack-django.up.railway.app',
+    'localhost',
+    '127.0.0.1',
+]
+
+# ✅ Add CSRF trusted origins (THIS IS THE FIX!)
+CSRF_TRUSTED_ORIGINS = [
+    'https://ecommerce-fullstack-django.up.railway.app',
+    'https://*.up.railway.app',
+    'https://ecommerce-full-stack-sandy.vercel.app',  # Your Vercel frontend
+    'https://*.vercel.app',
+]
+
+# Update CORS for your Vercel app
+CORS_ALLOWED_ORIGINS = [
+    "https://ecommerce-full-stack-sandy.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
+
+# Make sure these are set correctly for production
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
