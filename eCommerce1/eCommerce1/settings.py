@@ -156,7 +156,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 
-CORS_ALLOW_ALL_ORIGINS = False
 
 
 # Add your Railway domain
@@ -182,12 +181,19 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Update CORS for your Vercel app
+# Option 1: Allow all Vercel domains (easier)
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",  # ✅ Allows all Vercel preview URLs
+]
+
 CORS_ALLOWED_ORIGINS = [
-    "https://ecommerce-full-stack-sandy.vercel.app",
+    "https://ecommerce-full-stack-sandy.vercel.app",  # Your production URL
     "http://localhost:5173",
     "http://localhost:3000",
 ]
 
+# Keep this False
+CORS_ALLOW_ALL_ORIGINS = False
 # Make sure these are set correctly for production
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 SESSION_COOKIE_SECURE = True
