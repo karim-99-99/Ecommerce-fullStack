@@ -135,6 +135,11 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SAMESITE = 'None'
 
+# HTTPS Configuration for Railway (behind proxy)
+USE_TLS = not DEBUG
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False  # Railway handles SSL termination
+
 # Media files (keep for backward compatibility)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
