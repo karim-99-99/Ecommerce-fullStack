@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchProducts, fetchByCategory } from "../services/api"; // API functions
+import { getProductImageUrl, getPlaceholderImage } from "../utils/imageUtils";
 
 function Service() {
   const [products, setProducts] = useState([]);
@@ -34,7 +35,16 @@ function Service() {
           ? await fetchProducts()
           : await fetchByCategory(selectedCategory); // fetch by slug if Django expects slug
 
-      setProducts(response.data || []);
+      const productsData = response.data || [];
+      // Debug: Log image URLs to help troubleshoot
+      console.log("Products loaded:", productsData.length);
+      productsData.forEach((product, index) => {
+        console.log(`Product ${index + 1} (${product.name}):`, {
+          image: product.image,
+          hasImage: !!product.image,
+        });
+      });
+      setProducts(productsData);
     } catch (error) {
       setError(error.message || "Failed to load products");
     } finally {
@@ -124,13 +134,14 @@ function Service() {
           >
             <div className="flex flex-col items-center">
               <img
-                src={product.image || "/placeholder.png"}
+                src={getProductImageUrl(product.image)}
                 alt={product.name}
                 className="h-80 w-auto mb-4 object-cover"
                 onError={(e) => {
                   // Fallback to placeholder if image fails to load
-                  if (e.target.src !== "/placeholder.png") {
-                    e.target.src = "/placeholder.png";
+                  const placeholder = getPlaceholderImage();
+                  if (e.target.src !== placeholder) {
+                    e.target.src = placeholder;
                   }
                 }}
               />

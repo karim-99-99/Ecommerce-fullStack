@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { getProductImageUrl, getPlaceholderImage } from "../utils/imageUtils";
 
 function Registeration() {
   const [input, setinput] = useState({
@@ -128,13 +129,14 @@ Quantity: ${input.quantity}`;
             <h2 className="text-2xl font-bold mb-4">Selected Product</h2>
             <div className="flex flex-col items-center">
               <img
-                src={selectedProduct.image || "/placeholder.png"}
+                src={getProductImageUrl(selectedProduct.image)}
                 alt={selectedProduct.name || "Product"}
                 className="h-48 w-auto object-contain mb-4"
                 onError={(e) => {
                   // Fallback to placeholder if image fails to load
-                  if (e.target.src !== "/placeholder.png") {
-                    e.target.src = "/placeholder.png";
+                  const placeholder = getPlaceholderImage();
+                  if (e.target.src !== placeholder) {
+                    e.target.src = placeholder;
                   }
                 }}
               />
