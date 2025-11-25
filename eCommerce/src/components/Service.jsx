@@ -138,11 +138,16 @@ function Service() {
                 alt={product.name}
                 className="h-80 w-auto mb-4 object-cover"
                 onError={(e) => {
+                  // Log the error for debugging
+                  console.error(`Failed to load image for ${product.name}:`, e.target.src);
                   // Fallback to placeholder if image fails to load
                   const placeholder = getPlaceholderImage();
                   if (e.target.src !== placeholder) {
                     e.target.src = placeholder;
                   }
+                }}
+                onLoad={() => {
+                  console.log(`Successfully loaded image for ${product.name}`);
                 }}
               />
               <div className="text-center">
