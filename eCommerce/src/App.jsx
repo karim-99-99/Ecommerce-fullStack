@@ -21,28 +21,12 @@ function App() {
           {/* 🌐 Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/service" element={<Service />} />
+          <Route path="/service/registration" element={<Registeration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
           {/* 🔒 Protected Routes (require login) */}
-          <Route
-            path="/service"
-            element={
-              <PrivateRoute>
-                <Service />
-              </PrivateRoute>
-            }
-          />
-
-          {/* 🧾 Fixed Registration Page Route */}
-          <Route
-            path="/service/registration"
-            element={
-              <PrivateRoute>
-                <Registeration />
-              </PrivateRoute>
-            }
-          />
 
           <Route
             path="/add-item"

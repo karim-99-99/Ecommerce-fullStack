@@ -75,98 +75,133 @@ function Service() {
   };
 
   return (
-    <div>
-      {/* 🧭 Navbar */}
-      <nav className="flex justify-end gap-5 text-orange-600 font-semibold p-4">
-        <Link to="/" className="text-lg hover:underline">
-          Home
-        </Link>
-        <Link to="/service" className="text-lg hover:underline">
-          Service
-        </Link>
-        <Link to="/about" className="text-lg hover:underline">
-          About
-        </Link>
-
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="hidden sm:block rounded-3xl w-28 p-1 focus:outline-none border border-orange-700 text-sm text-orange-600"
-        />
-
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="focus:outline-none rounded-full w-24 sm:w-auto border border-orange-700 text-orange-600"
-        >
-          {filteredCategories.map((category) => (
-            <option key={category.slug} value={category.slug}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </nav>
-
-      {/* 🏪 Page Title */}
-      <div>
-        <h1 className="text-5xl font-bold m-10 font-sans text-orange-600">
-          Store Products
-        </h1>
-        {loading && <p className="text-gray-500">Loading products...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-      </div>
-
-      {/* 🛍️ Product Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-        {filteredProducts.length === 0 && !loading && (
-          <p className="text-center text-gray-500 col-span-full">
-            No items found.
-          </p>
-        )}
-
-        {filteredProducts.map((product) => (
-          <div
-            key={product.id}
-            className="border rounded-lg p-4 cursor-pointer hover:shadow-lg transition-shadow"
-            onClick={() => handleItemClick(product)}
-          >
-            <div className="flex flex-col items-center">
-              <img
-                src={getProductImageUrl(product.image)}
-                alt={product.name}
-                className="h-80 w-auto mb-4 object-cover"
-                onError={(e) => {
-                  // Log the error for debugging
-                  console.error(`Failed to load image for ${product.name}:`, e.target.src);
-                  // Fallback to placeholder if image fails to load
-                  const placeholder = getPlaceholderImage();
-                  if (e.target.src !== placeholder) {
-                    e.target.src = placeholder;
-                  }
-                }}
-                onLoad={() => {
-                  console.log(`Successfully loaded image for ${product.name}`);
-                }}
-              />
-              <div className="text-center">
-                <h3 className="font-bold text-lg mb-2">{product.name}</h3>
-                <p className="text-gray-600 mb-2 line-clamp-2">
-                  {product.description}
-                </p>
-              </div>
-              <div className="flex justify-between w-full mt-2">
-                <span className="font-bold text-orange-600">
-                  ${product.price}
-                </span>
-                <span className="text-gray-500">
-                  {product.category?.name || "Uncategorized"}
-                </span>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+      {/* Enhanced Navbar */}
+      <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-center h-auto sm:h-16 py-4 sm:py-0 gap-4 sm:gap-0">
+            <div className="flex items-center space-x-6">
+              <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">
+                ShopHouse
+              </Link>
+              <div className="hidden md:flex space-x-6">
+                <Link to="/" className="text-gray-700 hover:text-orange-600 font-medium transition-colors">
+                  Home
+                </Link>
+                <Link to="/service" className="text-orange-600 font-medium">
+                  Products
+                </Link>
+                <Link to="/about" className="text-gray-700 hover:text-orange-600 font-medium transition-colors">
+                  About
+                </Link>
               </div>
             </div>
+            
+            {/* Search and Filter */}
+            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-initial">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full sm:w-64 pl-10 pr-4 py-2 rounded-full border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                />
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+              </div>
+              
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-4 py-2 rounded-full border border-orange-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm font-medium text-gray-700 bg-white"
+              >
+                {filteredCategories.map((category) => (
+                  <option key={category.slug} value={category.slug}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-        ))}
+        </div>
+      </nav>
+
+      {/* Page Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-2">
+          Our <span className="text-orange-600">Products</span>
+        </h1>
+        <p className="text-gray-600 mb-6">Discover amazing products at great prices</p>
+        
+        {loading && (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+            <span className="ml-4 text-gray-600">Loading products...</span>
+          </div>
+        )}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            {error}
+          </div>
+        )}
+      </div>
+
+      {/* Product Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+        {filteredProducts.length === 0 && !loading && (
+          <div className="text-center py-16">
+            <div className="text-6xl mb-4">🔍</div>
+            <p className="text-xl text-gray-500 font-medium">No products found</p>
+            <p className="text-gray-400 mt-2">Try adjusting your search or filter</p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-2 group"
+              onClick={() => handleItemClick(product)}
+            >
+              {/* Product Image */}
+              <div className="relative h-64 bg-gray-100 overflow-hidden">
+                <img
+                  src={getProductImageUrl(product.image)}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  onError={(e) => {
+                    console.error(`Failed to load image for ${product.name}:`, e.target.src);
+                    const placeholder = getPlaceholderImage();
+                    if (e.target.src !== placeholder) {
+                      e.target.src = placeholder;
+                    }
+                  }}
+                />
+                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-700">
+                  {product.category?.name || "Uncategorized"}
+                </div>
+              </div>
+              
+              {/* Product Info */}
+              <div className="p-5">
+                <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1 group-hover:text-orange-600 transition-colors">
+                  {product.name}
+                </h3>
+                <p className="text-gray-600 text-sm mb-4 line-clamp-2 min-h-[2.5rem]">
+                  {product.description}
+                </p>
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <span className="text-2xl font-bold text-orange-600">
+                    ${product.price}
+                  </span>
+                  <button className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium">
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

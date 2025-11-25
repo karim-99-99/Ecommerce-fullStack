@@ -1,70 +1,142 @@
 import React from "react";
 import { Link } from "react-router-dom";
+
 function About() {
   return (
-    <div>
-      <nav className="grid grid-cols-3 md:w-80 ml-auto text-orange-600 text-xl font-semibold pb-10">
-        <Link to="/">Home</Link>
-        <Link to="/Service">Service</Link>
-        <Link to="/About">About</Link>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
+      {/* Enhanced Navbar */}
+      <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-8">
+              <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">
+                ShopHouse
+              </Link>
+              <div className="hidden md:flex space-x-6">
+                <Link to="/" className="text-gray-700 hover:text-orange-600 font-medium transition-colors">
+                  Home
+                </Link>
+                <Link to="/service" className="text-gray-700 hover:text-orange-600 font-medium transition-colors">
+                  Products
+                </Link>
+                <Link to="/about" className="text-orange-600 font-medium">
+                  About
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </nav>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:m-16 lg:-mt-10 ">
-        <p className="flex justify-center lg:m-16 md:text-lg font-semibold ">
-          Our e-commerce platform offers a wide range of products including
-          electronics, fashion, home goods, and more — all in one place. We
-          provide a convenient, secure, and fast shopping experience with
-          detailed product information, customer reviews, and multiple payment
-          options. Customers enjoy regular discounts, free shipping on select
-          orders, and easy return policies to ensure satisfaction with every
-          purchase.
-        </p>
-        <img
-          src="https://f.hellowork.com/blogdumoderateur/2023/05/ECommerce-Fevad-2023-.jpg"
-          alt="e-commerce Company"
-          className="rounded-xl lg:h-96 md:ml-10 md:mt-28 lg:mt-10 md:mr-10 h-auto w-auto "
-        />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-14 pr-6 ">
-        <span className="flex flex-col justify-center items-center">
-          <img
-            src="https://cdn.pixabay.com/photo/2023/02/24/00/41/ai-generated-7809880_960_720.jpg"
-            alt="ceo photo"
-            className="rounded-full h-28 md:h-52 w-28 md:w-56 ml-10 "
-          />
-          <div className="pt-5 pl-9">
-          <p className="md:text-xl font-semibold ">Adam Khalil</p>
-          <p className="font-semibold">CEO</p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <div className="space-y-6">
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900">
+              About <span className="text-orange-600">ShopHouse</span>
+            </h1>
+            <p className="text-lg text-gray-600 leading-relaxed">
+              Our e-commerce platform offers a wide range of products including
+              electronics, fashion, home goods, and more — all in one place. We
+              provide a convenient, secure, and fast shopping experience with
+              detailed product information, customer reviews, and multiple payment
+              options. Customers enjoy regular discounts, free shipping on select
+              orders, and easy return policies to ensure satisfaction with every
+              purchase.
+            </p>
           </div>
-        </span>
-        <span className="flex flex-col justify-center items-center">
-          <img
-            src="https://images.hindustantimes.com/tech/img/2023/01/19/1600x900/AI_generated_art_1674113313038_1674113318035_1674113318035.jpg"
-            alt="coo photo"
-            className="rounded-full h-28 md:h-52 w-28 md:w-56 ml-10 "
-          />
-          <div className="pt-5 pl-9">
-          <p className="md:text-xl font-semibold">Lina Saeed</p>
-          <p className="font-semibold">COO</p>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-2xl transform rotate-3 opacity-20"></div>
+            <img
+              src="https://f.hellowork.com/blogdumoderateur/2023/05/ECommerce-Fevad-2023-.jpg"
+              alt="e-commerce Company"
+              className="relative rounded-2xl shadow-2xl w-full h-auto object-cover"
+            />
           </div>
-        </span>
-        <span className="flex flex-col justify-center items-center">
-          <img
-            src="https://cdn.pixabay.com/photo/2023/02/08/14/02/ai-generated-7776701_640.jpg"
-            alt="cmo photo"
-            className="rounded-full h-28 md:h-52 w-28 md:w-56 ml-10"
-          />
-          <div className="pt-5 pl-9 ">
-          <p className="md:text-xl font-semibold"> Omar Hassan</p>
-          <p className="font-semibold">CMO</p>
+        </div>
+        {/* Team Section */}
+        <div className="mb-16">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Our Team</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+              <div className="relative inline-block mb-4">
+                <img
+                  src="https://cdn.pixabay.com/photo/2023/02/24/00/41/ai-generated-7809880_960_720.jpg"
+                  alt="CEO"
+                  className="rounded-full h-32 w-32 object-cover mx-auto border-4 border-orange-100"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-1">Adam Khalil</h3>
+              <p className="text-orange-600 font-semibold">CEO</p>
+            </div>
+            
+            <div className="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+              <div className="relative inline-block mb-4">
+                <img
+                  src="https://images.hindustantimes.com/tech/img/2023/01/19/1600x900/AI_generated_art_1674113313038_1674113318035_1674113318035.jpg"
+                  alt="COO"
+                  className="rounded-full h-32 w-32 object-cover mx-auto border-4 border-orange-100"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-1">Lina Saeed</h3>
+              <p className="text-orange-600 font-semibold">COO</p>
+            </div>
+            
+            <div className="bg-white rounded-2xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow">
+              <div className="relative inline-block mb-4">
+                <img
+                  src="https://cdn.pixabay.com/photo/2023/02/08/14/02/ai-generated-7776701_640.jpg"
+                  alt="CMO"
+                  className="rounded-full h-32 w-32 object-cover mx-auto border-4 border-orange-100"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-1">Omar Hassan</h3>
+              <p className="text-orange-600 font-semibold">CMO</p>
+            </div>
           </div>
-        </span>
-      </div>
-      <div className="m-14 flex flex-col justify-center items-center">
-        <h2 className="border-2   p-5 rounded-3xl bg-orange-500 text-3xl font-semibold text-white font-serif mb-3">Customer Opinion</h2>
-        <p className="border-1 border-black mt-2 p-3  bg-white text-l font-semibold text-black rounded-lg mb-3">Great variety of products and fast delivery.</p>
-        <p className="border- border-black mt-2 p-3  bg-white text-l font-semibold text-black rounded-lg mb-3">Easy to use website with good deals.</p>
-        <p className="border- border-black mt-2 p-3  bg-white text-l font-semibold text-black rounded-lg">Reliable service and smooth shopping experience.</p>
-        <p className="border- border-black mt-2 p-3  bg-white text-l font-semibold text-black rounded-lg">..............</p>
+        </div>
+
+        {/* Customer Reviews Section */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-8">
+            What Our <span className="text-orange-600">Customers</span> Say
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-600">
+              <p className="text-gray-700 font-medium mb-4">
+                "Great variety of products and fast delivery. Highly recommended!"
+              </p>
+              <div className="flex items-center">
+                <span className="text-yellow-400 text-xl">⭐⭐⭐⭐⭐</span>
+              </div>
+            </div>
+            
+            <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-600">
+              <p className="text-gray-700 font-medium mb-4">
+                "Easy to use website with good deals. Love shopping here!"
+              </p>
+              <div className="flex items-center">
+                <span className="text-yellow-400 text-xl">⭐⭐⭐⭐⭐</span>
+              </div>
+            </div>
+            
+            <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-600">
+              <p className="text-gray-700 font-medium mb-4">
+                "Reliable service and smooth shopping experience. Will shop again!"
+              </p>
+              <div className="flex items-center">
+                <span className="text-yellow-400 text-xl">⭐⭐⭐⭐⭐</span>
+              </div>
+            </div>
+            
+            <div className="bg-orange-50 rounded-xl p-6 border-l-4 border-orange-600">
+              <p className="text-gray-700 font-medium mb-4">
+                "Best online store I've used. Quality products and excellent customer service!"
+              </p>
+              <div className="flex items-center">
+                <span className="text-yellow-400 text-xl">⭐⭐⭐⭐⭐</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
