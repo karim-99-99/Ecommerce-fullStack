@@ -131,6 +131,12 @@ Quantity: ${input.quantity}`;
                 src={selectedProduct.image || "/placeholder.png"}
                 alt={selectedProduct.name || "Product"}
                 className="h-48 w-auto object-contain mb-4"
+                onError={(e) => {
+                  // Fallback to placeholder if image fails to load
+                  if (e.target.src !== "/placeholder.png") {
+                    e.target.src = "/placeholder.png";
+                  }
+                }}
               />
               <h3 className="font-bold text-lg mb-2">{selectedProduct.name}</h3>
               <p className="text-gray-600 mb-2">

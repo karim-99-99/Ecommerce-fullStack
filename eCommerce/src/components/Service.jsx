@@ -127,6 +127,12 @@ function Service() {
                 src={product.image || "/placeholder.png"}
                 alt={product.name}
                 className="h-80 w-auto mb-4 object-cover"
+                onError={(e) => {
+                  // Fallback to placeholder if image fails to load
+                  if (e.target.src !== "/placeholder.png") {
+                    e.target.src = "/placeholder.png";
+                  }
+                }}
               />
               <div className="text-center">
                 <h3 className="font-bold text-lg mb-2">{product.name}</h3>

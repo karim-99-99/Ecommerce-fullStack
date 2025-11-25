@@ -43,7 +43,16 @@ class ProductSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """ ✅ Ensure full image URL is returned """
         representation = super().to_representation(instance)
-        request = self.context.get('request')
-        if instance.image and request:
-            representation['image'] = request.build_absolute_uri(instance.image.url)
+        if instance.image:
+            image_url = instance.image.url
+            # If URL is already absolute (Cloudinary URLs are absolute), use it directly
+            # Otherwise, build absolute URI using request
+            if image_url.startswith('http://') or image_url.startswith('https://'):
+                representation['image'] = image_url
+            else:
+                request = self.context.get('request')
+                if request:
+                    representation['image'] = request.build_absolute_uri(image_url)
+                else:
+                    representation['image'] = image_url
         return representation
