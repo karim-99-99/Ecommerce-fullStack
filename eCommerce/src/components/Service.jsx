@@ -1,7 +1,101 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchProducts, fetchByCategory } from "../services/api"; // API functions
 import { getProductImageUrl, getPlaceholderImage } from "../utils/imageUtils";
+
+// Component for product image carousel on hover
+function ProductImageCarousel({ product, onError }) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const intervalRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Get all images for the product (currently just one, but can be extended)
+  const getProductImages = () => {
+    const images = [];
+    if (product.image) {
+      images.push(getProductImageUrl(product.image));
+    }
+    // If product has multiple images in the future, add them here
+    // if (product.images && Array.isArray(product.images)) {
+    //   images.push(...product.images.map(img => getProductImageUrl(img)));
+    // }
+    if (images.length === 0) {
+      images.push(getPlaceholderImage());
+    }
+    return images;
+  };
+
+  const images = getProductImages();
+
+  useEffect(() => {
+    if (isHovered && images.length > 1) {
+      intervalRef.current = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      }, 1500); // Change image every 1.5 seconds
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isHovered, images.length]);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    if (images.length > 1) {
+      setCurrentImageIndex(0);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setCurrentImageIndex(0);
+  };
+
+  return (
+    <div
+      className="relative h-64 bg-gray-100 overflow-hidden"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {images.map((imageUrl, index) => (
+        <img
+          key={index}
+          src={imageUrl}
+          alt={`${product.name} - Image ${index + 1}`}
+          className={`w-full h-full object-cover transition-opacity duration-500 absolute inset-0 ${
+            index === currentImageIndex
+              ? "opacity-100 z-10 scale-110"
+              : "opacity-0 z-0 scale-100"
+          }`}
+          onError={onError}
+        />
+      ))}
+      {images.length > 1 && (
+        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-20 flex gap-1">
+          {images.map((_, index) => (
+            <div
+              key={index}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                index === currentImageIndex
+                  ? "w-6 bg-white"
+                  : "w-1.5 bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-700 z-20">
+        {product.category?.name || "Uncategorized"}
+      </div>
+    </div>
+  );
+}
 
 function Service() {
   const [products, setProducts] = useState([]);
@@ -163,24 +257,17 @@ function Service() {
               className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-2 group"
               onClick={() => handleItemClick(product)}
             >
-              {/* Product Image */}
-              <div className="relative h-64 bg-gray-100 overflow-hidden">
-                <img
-                  src={getProductImageUrl(product.image)}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  onError={(e) => {
-                    console.error(`Failed to load image for ${product.name}:`, e.target.src);
-                    const placeholder = getPlaceholderImage();
-                    if (e.target.src !== placeholder) {
-                      e.target.src = placeholder;
-                    }
-                  }}
-                />
-                <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-700">
-                  {product.category?.name || "Uncategorized"}
-                </div>
-              </div>
+              {/* Product Image with Carousel */}
+              <ProductImageCarousel
+                product={product}
+                onError={(e) => {
+                  console.error(`Failed to load image for ${product.name}:`, e.target.src);
+                  const placeholder = getPlaceholderImage();
+                  if (e.target.src !== placeholder) {
+                    e.target.src = placeholder;
+                  }
+                }}
+              />
               
               {/* Product Info */}
               <div className="p-5">

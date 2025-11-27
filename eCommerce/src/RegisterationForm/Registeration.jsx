@@ -13,6 +13,30 @@ function Registeration() {
   const [error, seterror] = useState({});
   const [successMessage, setSuccessMessage] = useState("");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  // Get all images for the product
+  const getProductImages = () => {
+    if (!selectedProduct) return [];
+    const images = [];
+    if (selectedProduct.image) {
+      images.push(getProductImageUrl(selectedProduct.image));
+    }
+    // If product has multiple images in the future, add them here
+    // if (selectedProduct.images && Array.isArray(selectedProduct.images)) {
+    //   images.push(...selectedProduct.images.map(img => getProductImageUrl(img)));
+    // }
+    if (images.length === 0) {
+      images.push(getPlaceholderImage());
+    }
+    return images;
+  };
+
+  const productImages = getProductImages();
+
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [selectedProduct]);
 
   useEffect(() => {
     // Get the selected product from sessionStorage
@@ -128,30 +152,77 @@ Quantity: ${input.quantity}`;
           <div className="border rounded-lg p-4 bg-white shadow-md">
             <h2 className="text-2xl font-bold mb-4">Selected Product</h2>
             <div className="flex flex-col items-center">
-              <img
-                src={getProductImageUrl(selectedProduct.image)}
-                alt={selectedProduct.name || "Product"}
-                className="h-48 w-auto object-contain mb-4"
-                onError={(e) => {
-                  // Fallback to placeholder if image fails to load
-                  const placeholder = getPlaceholderImage();
-                  if (e.target.src !== placeholder) {
-                    e.target.src = placeholder;
-                  }
-                }}
-              />
+              {/* Main Product Image */}
+              <div className="w-full mb-4">
+                <div className="relative bg-gray-100 rounded-lg overflow-hidden mb-4" style={{ aspectRatio: '1/1', maxHeight: '400px' }}>
+                  <img
+                    src={productImages[selectedImageIndex] || getPlaceholderImage()}
+                    alt={selectedProduct.name || "Product"}
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      const placeholder = getPlaceholderImage();
+                      if (e.target.src !== placeholder) {
+                        e.target.src = placeholder;
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Image Thumbnail Selector */}
+                {productImages.length > 1 && (
+                  <div className="flex gap-2 justify-center overflow-x-auto pb-2">
+                    {productImages.map((imageUrl, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(index)}
+                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                          index === selectedImageIndex
+                            ? "border-orange-600 ring-2 ring-orange-300"
+                            : "border-gray-300 hover:border-orange-400"
+                        }`}
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`${selectedProduct.name} - Thumbnail ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const placeholder = getPlaceholderImage();
+                            if (e.target.src !== placeholder) {
+                              e.target.src = placeholder;
+                            }
+                          }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Image Counter */}
+                {productImages.length > 1 && (
+                  <div className="text-center text-sm text-gray-500 mt-2">
+                    Image {selectedImageIndex + 1} of {productImages.length}
+                  </div>
+                )}
+              </div>
+
               <h3 className="font-bold text-lg mb-2">{selectedProduct.name}</h3>
-              <p className="text-gray-600 mb-2">
+              <p className="text-gray-600 mb-2 text-center">
                 {selectedProduct.description}
               </p>
               <div className="flex justify-between w-full mt-2">
-                <span className="font-bold text-green-600">
+                <span className="font-bold text-green-600 text-xl">
                   ${selectedProduct.price}
                 </span>
                 <span className="text-gray-500">
                   {selectedProduct.category?.name || "Uncategorized"}
                 </span>
               </div>
+              {selectedProduct.stock_quantity !== undefined && (
+                <div className="w-full mt-2 text-sm text-gray-600">
+                  <span className="font-semibold">Available:</span> {selectedProduct.stock_quantity} items
+                </div>
+              )}
             </div>
           </div>
         )}
