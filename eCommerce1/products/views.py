@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework import viewsets , permissions ,parsers
-from .models import Product, Category
+from .models import Product, Category, ProductImage
 from .serializers import ProductSerializer, CategorySerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -45,8 +45,27 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
     parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
-    def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+    def create(self, request, *args, **kwargs):
+        # Get all image files from request
+        image_files = request.FILES.getlist('images') or []
+        main_image = request.FILES.get('image')
+        
+        # Create product with main image
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product = serializer.save(owner=request.user)
+        
+        # Create ProductImage instances for additional images
+        for image_file in image_files:
+            ProductImage.objects.create(product=product, image=image_file)
+        
+        # If no main image but we have additional images, use first one as main
+        if not main_image and image_files:
+            product.image = image_files[0]
+            product.save()
+        
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
     @action(detail=False, url_path='category/(?P<slug>[^/.]+)')
     def by_category(self, request, slug=None):

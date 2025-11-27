@@ -60,6 +60,11 @@ function AddItem() {
       // Append the first photo as the main image
       if (input.photos.length > 0) {
         formData.append("image", input.photos[0]);
+        
+        // Append remaining photos as additional images
+        for (let i = 1; i < input.photos.length; i++) {
+          formData.append("images", input.photos[i]);
+        }
       }
 
       await addProduct(formData);

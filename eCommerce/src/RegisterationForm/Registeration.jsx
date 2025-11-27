@@ -19,16 +19,31 @@ function Registeration() {
   const getProductImages = () => {
     if (!selectedProduct) return [];
     const images = [];
+    
+    // Add main image first if it exists
     if (selectedProduct.image) {
       images.push(getProductImageUrl(selectedProduct.image));
     }
-    // If product has multiple images in the future, add them here
-    // if (selectedProduct.images && Array.isArray(selectedProduct.images)) {
-    //   images.push(...selectedProduct.images.map(img => getProductImageUrl(img)));
-    // }
+    
+    // Add additional images from the images array
+    if (selectedProduct.images && Array.isArray(selectedProduct.images)) {
+      selectedProduct.images.forEach(img => {
+        const imageUrl = img.image || img;
+        if (imageUrl) {
+          const fullUrl = getProductImageUrl(imageUrl);
+          // Avoid duplicates if main image is also in the array
+          if (!images.includes(fullUrl)) {
+            images.push(fullUrl);
+          }
+        }
+      });
+    }
+    
+    // Fallback to placeholder if no images
     if (images.length === 0) {
       images.push(getPlaceholderImage());
     }
+    
     return images;
   };
 

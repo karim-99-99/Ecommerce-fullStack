@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Category
+from .models import Product, Category, ProductImage
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,9 +7,46 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug']
 
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']
+    
+    def to_representation(self, instance):
+        """Ensure full image URL is returned with HTTPS"""
+        representation = super().to_representation(instance)
+        if instance.image:
+            image_url = instance.image.url
+            request = self.context.get('request')
+            
+            # If URL is already absolute
+            if image_url.startswith('http://') or image_url.startswith('https://'):
+                if image_url.startswith('http://'):
+                    representation['image'] = image_url.replace('http://', 'https://', 1)
+                else:
+                    representation['image'] = image_url
+            else:
+                # Build absolute URI using request
+                if request:
+                    absolute_url = request.build_absolute_uri(image_url)
+                    if absolute_url.startswith('http://') and not request.get_host().startswith('localhost'):
+                        representation['image'] = absolute_url.replace('http://', 'https://', 1)
+                    else:
+                        representation['image'] = absolute_url
+                else:
+                    # Fallback: construct HTTPS URL manually for production
+                    from django.conf import settings
+                    if not settings.DEBUG:
+                        base_url = 'https://ecommerce-fullstack-django.up.railway.app'
+                        representation['image'] = f"{base_url}{image_url}" if image_url.startswith('/') else f"{base_url}/{image_url}"
+                    else:
+                        representation['image'] = image_url
+        return representation
+
+
 class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
-    images = ProductImageSerializer(many=True, read_only=True)  # ← NEW
+    images = ProductImageSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     owner_username = serializers.ReadOnlyField(source='owner.username')
     category_id = serializers.PrimaryKeyRelatedField(
@@ -45,9 +82,11 @@ class ProductSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """ ✅ Ensure full image URL is returned with HTTPS """
         representation = super().to_representation(instance)
+        request = self.context.get('request')
+        
+        # Handle main image
         if instance.image:
             image_url = instance.image.url
-            request = self.context.get('request')
             
             # If URL is already absolute (Cloudinary URLs are absolute)
             if image_url.startswith('http://') or image_url.startswith('https://'):
@@ -73,10 +112,19 @@ class ProductSerializer(serializers.ModelSerializer):
                         representation['image'] = f"{base_url}{image_url}" if image_url.startswith('/') else f"{base_url}/{image_url}"
                     else:
                         representation['image'] = image_url
+        
+        # Handle images array - ensure proper URLs for each image
+        if 'images' in representation and representation['images']:
+            for img in representation['images']:
+                if 'image' in img and img['image']:
+                    img_url = img['image']
+                    if not (img_url.startswith('http://') or img_url.startswith('https://')):
+                        if request:
+                            img['image'] = request.build_absolute_uri(img_url)
+                        else:
+                            from django.conf import settings
+                            if not settings.DEBUG:
+                                base_url = 'https://ecommerce-fullstack-django.up.railway.app'
+                                img['image'] = f"{base_url}{img_url}" if img_url.startswith('/') else f"{base_url}/{img_url}"
+        
         return representation
-
-
-class ProductImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductImage
-        fields = ['id', 'image']

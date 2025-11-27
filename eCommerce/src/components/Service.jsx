@@ -7,20 +7,34 @@ import { getProductImageUrl, getPlaceholderImage } from "../utils/imageUtils";
 function ProductImageGallery({ product, onError }) {
   const [isHovered, setIsHovered] = useState(false);
 
-  // Get all images for the product (currently just one, but can be extended)
+  // Get all images for the product
   const getProductImages = () => {
     const images = [];
-  if (product.images && Array.isArray(product.images)) {
-  images.push(...product.images.map(img => getProductImageUrl(img.image)));
-}
-
-    // If product has multiple images in the future, add them here
-    // if (product.images && Array.isArray(product.images)) {
-    //   images.push(...product.images.map(img => getProductImageUrl(img)));
-    // }
+    
+    // Add main image first if it exists
+    if (product.image) {
+      images.push(getProductImageUrl(product.image));
+    }
+    
+    // Add additional images from the images array
+    if (product.images && Array.isArray(product.images)) {
+      product.images.forEach(img => {
+        const imageUrl = img.image || img;
+        if (imageUrl) {
+          const fullUrl = getProductImageUrl(imageUrl);
+          // Avoid duplicates if main image is also in the array
+          if (!images.includes(fullUrl)) {
+            images.push(fullUrl);
+          }
+        }
+      });
+    }
+    
+    // Fallback to placeholder if no images
     if (images.length === 0) {
       images.push(getPlaceholderImage());
     }
+    
     return images;
   };
 
