@@ -1,12 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchProducts, fetchByCategory } from "../services/api"; // API functions
 import { getProductImageUrl, getPlaceholderImage } from "../utils/imageUtils";
 
-// Component for product image carousel on hover
-function ProductImageCarousel({ product, onError }) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const intervalRef = useRef(null);
+// Component for product image gallery on hover - shows all images at once
+function ProductImageGallery({ product, onError }) {
   const [isHovered, setIsHovered] = useState(false);
 
   // Get all images for the product (currently just one, but can be extended)
@@ -26,70 +24,64 @@ function ProductImageCarousel({ product, onError }) {
   };
 
   const images = getProductImages();
+  const imageCount = images.length;
 
-  useEffect(() => {
-    if (isHovered && images.length > 1) {
-      intervalRef.current = setInterval(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % images.length);
-      }, 1500); // Change image every 1.5 seconds
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isHovered, images.length]);
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    if (images.length > 1) {
-      setCurrentImageIndex(0);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    setCurrentImageIndex(0);
+  // Determine grid layout based on number of images
+  const getGridClass = () => {
+    if (imageCount === 1) return "grid-cols-1";
+    if (imageCount === 2) return "grid-cols-2";
+    if (imageCount === 3) return "grid-cols-2";
+    if (imageCount === 4) return "grid-cols-2";
+    return "grid-cols-2"; // Default for 5+ images
   };
 
   return (
     <div
       className="relative h-64 bg-gray-100 overflow-hidden"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      {images.map((imageUrl, index) => (
+      {/* Default view - shows first image */}
+      <div className={`absolute inset-0 transition-opacity duration-300 ${isHovered && imageCount > 1 ? 'opacity-0' : 'opacity-100'}`}>
         <img
-          key={index}
-          src={imageUrl}
-          alt={`${product.name} - Image ${index + 1}`}
-          className={`w-full h-full object-cover transition-opacity duration-500 absolute inset-0 ${
-            index === currentImageIndex
-              ? "opacity-100 z-10 scale-110"
-              : "opacity-0 z-0 scale-100"
-          }`}
+          src={images[0]}
+          alt={product.name}
+          className="w-full h-full object-cover"
           onError={onError}
         />
-      ))}
-      {images.length > 1 && (
-        <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 z-20 flex gap-1">
-          {images.map((_, index) => (
-            <div
-              key={index}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                index === currentImageIndex
-                  ? "w-6 bg-white"
-                  : "w-1.5 bg-white/50"
-              }`}
-            />
-          ))}
+      </div>
+
+      {/* Hover view - shows all images in grid */}
+      {imageCount > 1 && (
+        <div className={`absolute inset-0 transition-opacity duration-300 ${isHovered ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+          <div className={`grid ${getGridClass()} gap-1 h-full p-1`}>
+            {images.map((imageUrl, index) => (
+              <div key={index} className="relative overflow-hidden rounded">
+                <img
+                  src={imageUrl}
+                  alt={`${product.name} - Image ${index + 1}`}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                  onError={onError}
+                />
+                {imageCount > 4 && index === 3 && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-semibold">
+                    +{imageCount - 4} more
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Image count badge */}
+      {imageCount > 1 && (
+        <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold text-gray-700 z-20">
+          {imageCount} photos
+        </div>
+      )}
+
+      {/* Category badge */}
       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-gray-700 z-20">
         {product.category?.name || "Uncategorized"}
       </div>
@@ -257,8 +249,8 @@ function Service() {
               className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer transform hover:-translate-y-2 group"
               onClick={() => handleItemClick(product)}
             >
-              {/* Product Image with Carousel */}
-              <ProductImageCarousel
+              {/* Product Image with Gallery (shows all photos on hover) */}
+              <ProductImageGallery
                 product={product}
                 onError={(e) => {
                   console.error(`Failed to load image for ${product.name}:`, e.target.src);
