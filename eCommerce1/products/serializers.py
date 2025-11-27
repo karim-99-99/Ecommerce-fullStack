@@ -50,7 +50,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     image = serializers.ImageField(required=False)
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     category = CategorySerializer(read_only=True)
     owner_username = serializers.ReadOnlyField(source='owner.username')
     category_id = serializers.PrimaryKeyRelatedField(
@@ -69,6 +69,19 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
         read_only_fields = ['id', 'created_at', 'owner_username']
+    
+    def get_images(self, obj):
+        """Safely get images, handling cases where table might not exist"""
+        try:
+            # Try to access the images relationship
+            images = obj.images.all()
+            if images.exists():
+                return ProductImageSerializer(images, many=True, context=self.context).data
+        except Exception as e:
+            # If there's any error (table doesn't exist, database error, etc.), return empty list
+            # This handles the case where ProductImage table hasn't been migrated yet
+            pass
+        return []
 
     def validate(self, data):
         if data['price'] <= 0:

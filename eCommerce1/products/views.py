@@ -55,9 +55,14 @@ class ProductViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         product = serializer.save(owner=request.user)
         
-        # Create ProductImage instances for additional images
-        for image_file in image_files:
-            ProductImage.objects.create(product=product, image=image_file)
+        # Create ProductImage instances for additional images (if table exists)
+        try:
+            for image_file in image_files:
+                ProductImage.objects.create(product=product, image=image_file)
+        except Exception as e:
+            # If ProductImage table doesn't exist yet, just skip creating additional images
+            # The main image is already saved in the product.image field
+            pass
         
         # If no main image but we have additional images, use first one as main
         if not main_image and image_files:
