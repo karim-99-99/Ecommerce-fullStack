@@ -75,5 +75,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(detail=False, url_path='category/(?P<slug>[^/.]+)')
     def by_category(self, request, slug=None):
         products = Product.objects.filter(category__slug__iexact=slug)
-        serializer = self.get_serializer(products, many=True)
-        return Response(serializer.data)  
+        serializer = self.get_serializer(products, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    def get_serializer_context(self):
+        """Ensure request context is always passed to serializer"""
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context  

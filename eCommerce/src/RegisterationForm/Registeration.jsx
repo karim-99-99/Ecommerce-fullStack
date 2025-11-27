@@ -15,25 +15,33 @@ function Registeration() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  // Get all images for the product
+  // Get all images for the product - ensures consistent image URLs
   const getProductImages = () => {
     if (!selectedProduct) return [];
     const images = [];
+    const imageUrls = new Set(); // Use Set to track URLs and avoid duplicates
     
     // Add main image first if it exists
     if (selectedProduct.image) {
-      images.push(getProductImageUrl(selectedProduct.image));
+      const mainImageUrl = getProductImageUrl(selectedProduct.image);
+      if (mainImageUrl && !imageUrls.has(mainImageUrl)) {
+        images.push(mainImageUrl);
+        imageUrls.add(mainImageUrl);
+      }
     }
     
     // Add additional images from the images array
+    // Backend returns images as array of objects: [{id: 1, image: "url"}, ...]
     if (selectedProduct.images && Array.isArray(selectedProduct.images)) {
       selectedProduct.images.forEach(img => {
-        const imageUrl = img.image || img;
+        // Handle both object format {image: "url"} and direct string format
+        const imageUrl = (typeof img === 'object' && img !== null) ? img.image : img;
         if (imageUrl) {
           const fullUrl = getProductImageUrl(imageUrl);
-          // Avoid duplicates if main image is also in the array
-          if (!images.includes(fullUrl)) {
+          // Avoid duplicates by checking the Set
+          if (fullUrl && !imageUrls.has(fullUrl)) {
             images.push(fullUrl);
+            imageUrls.add(fullUrl);
           }
         }
       });
@@ -49,9 +57,23 @@ function Registeration() {
 
   const productImages = getProductImages();
 
+  // Reset to first image when product changes
   useEffect(() => {
     setSelectedImageIndex(0);
   }, [selectedProduct]);
+
+  // Navigation functions for image selector
+  const goToPreviousImage = () => {
+    setSelectedImageIndex((prev) => 
+      prev === 0 ? productImages.length - 1 : prev - 1
+    );
+  };
+
+  const goToNextImage = () => {
+    setSelectedImageIndex((prev) => 
+      prev === productImages.length - 1 ? 0 : prev + 1
+    );
+  };
 
   useEffect(() => {
     // Get the selected product from sessionStorage
@@ -167,7 +189,7 @@ Quantity: ${input.quantity}`;
           <div className="border rounded-lg p-4 bg-white shadow-md">
             <h2 className="text-2xl font-bold mb-4">Selected Product</h2>
             <div className="flex flex-col items-center">
-              {/* Main Product Image */}
+              {/* Main Product Image with Navigation */}
               <div className="w-full mb-4">
                 <div className="relative bg-gray-100 rounded-lg overflow-hidden mb-4" style={{ aspectRatio: '1/1', maxHeight: '400px' }}>
                   <img
@@ -181,44 +203,71 @@ Quantity: ${input.quantity}`;
                       }
                     }}
                   />
+                  
+                  {/* Navigation Arrows - Only show if more than 1 image */}
+                  {productImages.length > 1 && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={goToPreviousImage}
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110 z-10"
+                        aria-label="Previous image"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={goToNextImage}
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-lg transition-all hover:scale-110 z-10"
+                        aria-label="Next image"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
                 </div>
 
                 {/* Image Thumbnail Selector */}
                 {productImages.length > 1 && (
-                  <div className="flex gap-2 justify-center overflow-x-auto pb-2">
-                    {productImages.map((imageUrl, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => setSelectedImageIndex(index)}
-                        className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                          index === selectedImageIndex
-                            ? "border-orange-600 ring-2 ring-orange-300"
-                            : "border-gray-300 hover:border-orange-400"
-                        }`}
-                      >
-                        <img
-                          src={imageUrl}
-                          alt={`${selectedProduct.name} - Thumbnail ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const placeholder = getPlaceholderImage();
-                            if (e.target.src !== placeholder) {
-                              e.target.src = placeholder;
-                            }
-                          }}
-                        />
-                      </button>
-                    ))}
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex gap-2 justify-center overflow-x-auto pb-2 w-full">
+                      {productImages.map((imageUrl, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          onClick={() => setSelectedImageIndex(index)}
+                          className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                            index === selectedImageIndex
+                              ? "border-orange-600 ring-2 ring-orange-300 scale-110"
+                              : "border-gray-300 hover:border-orange-400 hover:scale-105"
+                          }`}
+                          aria-label={`Select image ${index + 1}`}
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={`${selectedProduct.name} - Thumbnail ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const placeholder = getPlaceholderImage();
+                              if (e.target.src !== placeholder) {
+                                e.target.src = placeholder;
+                              }
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    {/* Image Counter */}
+                    <div className="text-center text-sm text-gray-500">
+                      Image {selectedImageIndex + 1} of {productImages.length}
+                    </div>
                   </div>
                 )}
 
-                {/* Image Counter */}
-                {productImages.length > 1 && (
-                  <div className="text-center text-sm text-gray-500 mt-2">
-                    Image {selectedImageIndex + 1} of {productImages.length}
-                  </div>
-                )}
               </div>
 
               <h3 className="font-bold text-lg mb-2">{selectedProduct.name}</h3>
