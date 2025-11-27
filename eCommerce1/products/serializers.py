@@ -8,7 +8,8 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    image = serializers.ImageField(required=False)  # ✅ Allow image upload
+    image = serializers.ImageField(required=False)
+    images = ProductImageSerializer(many=True, read_only=True)  # ← NEW
     category = CategorySerializer(read_only=True)
     owner_username = serializers.ReadOnlyField(source='owner.username')
     category_id = serializers.PrimaryKeyRelatedField(
@@ -22,9 +23,10 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'description', 'price',
             'category', 'category_id',
-            'stock_quantity', 'image',
+            'stock_quantity', 'image', 'images',
             'created_at', 'owner_username'
         ]
+
         read_only_fields = ['id', 'created_at', 'owner_username']
 
     def validate(self, data):
@@ -72,3 +74,9 @@ class ProductSerializer(serializers.ModelSerializer):
                     else:
                         representation['image'] = image_url
         return representation
+
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']

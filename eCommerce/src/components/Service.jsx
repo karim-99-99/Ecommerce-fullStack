@@ -10,9 +10,10 @@ function ProductImageGallery({ product, onError }) {
   // Get all images for the product (currently just one, but can be extended)
   const getProductImages = () => {
     const images = [];
-    if (product.image) {
-      images.push(getProductImageUrl(product.image));
-    }
+  if (product.images && Array.isArray(product.images)) {
+  images.push(...product.images.map(img => getProductImageUrl(img.image)));
+}
+
     // If product has multiple images in the future, add them here
     // if (product.images && Array.isArray(product.images)) {
     //   images.push(...product.images.map(img => getProductImageUrl(img)));
