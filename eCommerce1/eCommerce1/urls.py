@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.views.static import serve
+import os
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,7 +26,20 @@ else:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-# ✅ Catch-all route for React app (MUST be last, excludes API, admin, and media)
+# ✅ Serve React build assets (JS, CSS, images, etc.)
+react_dist_path = os.path.join(settings.BASE_DIR, 'static', 'dist')
+react_assets_path = os.path.join(react_dist_path, 'assets')
+
+# Serve React build assets in both dev and production
+if os.path.exists(react_assets_path):
+    urlpatterns += [
+        re_path(r'^assets/(?P<path>.*)$', serve, {
+            'document_root': react_assets_path,
+        }),
+    ]
+
+# ✅ Catch-all route for React app (MUST be last, excludes API, admin, media, static, and assets)
+# This serves index.html for all routes, allowing React Router to handle client-side routing
 urlpatterns += [
-    re_path(r"^(?!api|admin|media|static).*$", TemplateView.as_view(template_name="index.html")),
+    re_path(r"^(?!api|admin|media|static|assets).*$", TemplateView.as_view(template_name="index.html")),
 ]
